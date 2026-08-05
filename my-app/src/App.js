@@ -1,6 +1,7 @@
 //import {getDatabase, ref, set} from 'firebase/database';
 import {getAuth , createUserWithEmailAndPassword} from 'firebase/auth';
 import { app } from './firebase';
+import Signup from './pages/Signup';
 import './App.css';
 
 const auth = getAuth(app);
@@ -14,12 +15,12 @@ const auth = getAuth(app);
 // };
 
 function App() {
-  const  signUpUser=()=>{
-    createUserWithEmailAndPassword(auth,'mahaarshad123@example.com','maha123').then((value)=> console.log(value))};
+ const  signUpUser=()=>{
+    createUserWithEmailAndPassword(auth,'mahaarshad123@examplecom','maha123').then((value)=> console.log(value))};
   return (
     <div className="App">
      <h1>Welcome to My App with firebase</h1>
-     <button onClick={signUpUser}>Sign Up</button>
+     <Signup />
     </div>
   );
 }
