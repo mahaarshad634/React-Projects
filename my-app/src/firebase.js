@@ -1,8 +1,10 @@
 import { initializeApp } from "firebase/app";
 
+const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+
 const firebaseConfig = {
   apiKey: "AIzaSyDA1y8BrUIMqKFbp_ZDrSFuvEotbtd_5Ts",
-  authDomain: "my-app-f4b18.firebaseapp.com",
+  authDomain: currentHost === 'localhost' ? 'localhost' : 'my-app-f4b18.firebaseapp.com',
   databaseURL: "https://my-app-f4b18-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "my-app-f4b18",
   storageBucket: "my-app-f4b18.firebasestorage.app",

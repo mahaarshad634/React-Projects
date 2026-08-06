@@ -8,22 +8,35 @@ const googleProvider = new GoogleAuthProvider();
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [feedback, setFeedback] = useState('');
 
   const createUser = () => {
+    setFeedback('');
     createUserWithEmailAndPassword(auth, email, password)
-      .then(() => alert('User created successfully'))
-      .catch((error) => alert(error.message));
+      .then(() => setFeedback('User created successfully.'))
+      .catch((error) => {
+        console.error('Email sign-up error:', error);
+        setFeedback(error.message || 'Email sign-up failed.');
+      });
   };
 
   const signUpWithGoogle = async () => {
+    setFeedback('');
     try {
       await signInWithPopup(auth, googleProvider);
+      setFeedback('Google sign-in successful.');
     } catch (error) {
+      console.error('Google sign-in error:', error);
       if (error.code === 'auth/popup-blocked') {
-        await signInWithRedirect(auth, googleProvider);
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          setFeedback('Redirecting to Google sign-in...');
+        } catch (redirectError) {
+          console.error('Google redirect sign-in error:', redirectError);
+          setFeedback(redirectError.message || 'Google sign-in failed.');
+        }
       } else {
-        console.error('Google sign-in error:', error);
-        alert(error.message || 'Google sign-in failed');
+        setFeedback(error.message || 'Google sign-in failed.');
       }
     }
   };
@@ -52,6 +65,7 @@ const Signup = () => {
       <br />
       <button onClick={signUpWithGoogle}>Sign Up with Google</button>
       <button onClick={createUser}>Sign Up</button>
+      {feedback && <p style={{ color: 'red', marginTop: '10px' }}>{feedback}</p>}
     </div>
   );
 };
