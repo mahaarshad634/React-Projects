@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { app } from '../firebase';
 
 const auth = getAuth(app);
@@ -15,8 +15,17 @@ const Signup = () => {
       .catch((error) => alert(error.message));
   };
 
-  const signUpWithGoogle = () => {
-    signInWithRedirect(auth, googleProvider);
+  const signUpWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      if (error.code === 'auth/popup-blocked') {
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        console.error('Google sign-in error:', error);
+        alert(error.message || 'Google sign-in failed');
+      }
+    }
   };
 
   return (

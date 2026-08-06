@@ -13,32 +13,44 @@ function App() {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setInitializing(false);
+      if (isMounted) {
+        setUser(currentUser);
+        setInitializing(false);
+      }
     });
 
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result && result.user) {
-          console.log('Redirect sign-in result:', result.user);
+    const resolveRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (isMounted && result?.user) {
+          setUser(result.user);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Redirect sign-in error:', error);
-      });
+      } finally {
+        if (isMounted) {
+          setInitializing(false);
+        }
+      }
+    };
 
-    return unsubscribe;
+    resolveRedirectResult();
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
-  const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        console.log('Signed out successfully');
-      })
-      .catch((error) => {
-        console.error('Sign out error:', error);
-      });
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   if (initializing) {
@@ -52,8 +64,8 @@ function App() {
   if (!user) {
     return (
       <div className="App">
-        <h1>Welcome to My App with firebase</h1>
-        <p>Please sign in or sign up.</p>
+        <h1>Welcome to My App with Firebase</h1>
+        <p>Please sign in or sign up to continue.</p>
         <Signup />
         <Signin />
       </div>
@@ -62,7 +74,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Hello {user.displayName || user.email}</h1>
+      <h1>Hello, {user.displayName || user.email?.split('@')[0] || 'there'}!</h1>
       <p>Signed in as {user.email}</p>
       <button onClick={handleSignOut}>Sign Out</button>
     </div>
