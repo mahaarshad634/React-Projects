@@ -1,7 +1,7 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext ,useState ,useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getDatabase, ref, set } from 'firebase/database';
+import { getDatabase, ref, set, get, child,onValue } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDA1y8BrUIMqKFbp_ZDrSFuvEotbtd_5Ts",
@@ -17,19 +17,41 @@ const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 const firebaseDatabase = getDatabase(firebaseApp);
 
-const FirebaseContext = createContext(null);
+export const FirebaseContext = createContext(null);
 
-export const useFirebase = () => useContext(FirebaseContext);
+export function useFirebase() {
+  return useContext(FirebaseContext);
+}
 
 export const FirebaseProvider = ({ children }) => {
+  const [name, setName] = useState('');
+
   const signupUserWithEmailAndPassword = (email, password) => {
     return createUserWithEmailAndPassword(firebaseAuth, email, password);
   };
 
   const putData = (key, data) => set(ref(firebaseDatabase, key), data);
 
+  const getData = (path) => {
+    return get(child(ref(firebaseDatabase), path)).then((snapshot) => {
+      if (snapshot.exists()) {
+        return snapshot.val();
+      }
+      return null;
+    });
+  };
+
+  useEffect(() => {
+    const dataRef = ref(firebaseDatabase, 'grandfather/father/child');
+    onValue(dataRef, (snapshot) => {
+      const value = snapshot.val();
+      setName(value?.name || '');
+    });
+  }, []);
+
   return (
-    <FirebaseContext.Provider value={{ signupUserWithEmailAndPassword, putData }}>
+    <FirebaseContext.Provider value={{ signupUserWithEmailAndPassword, putData, getData, name }}>
+      <h2>Name is {name}</h2>
       {children}
     </FirebaseContext.Provider>
   );
