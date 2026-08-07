@@ -4,9 +4,9 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { useFirebase} from '../context/firebase.jsx';
 
-const RegisterPage = () => {
+const LoginPage = () => {
  const firebase = useFirebase();
- const navigate = useNavigate();
+ const navigate= useNavigate();
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 
@@ -15,14 +15,15 @@ useEffect(()=>{
        navigate("/")
     }
 },[firebase, navigate])
-  
+
+   console.log(firebase);
 const handleSubmit = async (e) => {
  e.preventDefault();
- console.log('sign in user.....')
-const result = await firebase.signupUserWithEmailAndPassword(email,password);
-console.log('user signed in successfully', result);
+ console.log('Login in user.....')
+const result = await firebase.signInUserWithEmailAndPassword(email,password);
+console.log('user logged in successfully', result);
 }
- console.log(firebase);
+
 
     return (
         <div className="container mt-5">
@@ -30,9 +31,7 @@ console.log('user signed in successfully', result);
       <Form.Group className="mb-3" controlId="formBasicEmail">
         <Form.Label>Email address</Form.Label>
         <Form.Control onChange={(e) => setEmail(e.target.value)}  value ={email}type="email" placeholder="Enter email" />
-        <Form.Text className="text-muted">
-          We'll never share your email with anyone else.
-        </Form.Text>
+       
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -41,11 +40,13 @@ console.log('user signed in successfully', result);
       </Form.Group>
      
       <Button variant="primary" type="submit">
-        Create Account
+        Log IN
       </Button>
     </Form>
+    <h3 className="mt-5 mb-5">OR</h3>
+    <Button onClick= {() => firebase.signInWithGoogle()} variant="outline-danger" type="submit">SignIn with Google</Button>
         </div>
     );
 };
 
-export default RegisterPage;
+export default LoginPage;
